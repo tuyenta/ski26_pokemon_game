@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siêu Pokedex Quiz VR - 250 Pokemon (No Repeat)</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: sans-serif; }
+        #start-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, #ed1c24, #2a0000);
+            z-index: 10000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; color: white; text-align: center;
+        }
+        .btn-start {
+            padding: 22px 65px; background: #ffcb05; color: #3b4cca;
+            font-size: 32px; font-weight: bold; border-radius: 60px;
+            border: 6px solid white; cursor: pointer; margin-top: 30px;
+            box-shadow: 0 10px 0 #b58d00;
+        }
+        #info-txt { margin-top: 15px; color: #ffcb05; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" onclick="khoiDongApp()">
+        <h1 style="font-size: 50px; margin:0; text-shadow: 4px 4px #000;">POKÉDEX QUIZ MASTER</h1>
+        <p style="font-size: 20px;">Thử tài đoán 250 bạn Pokémon cùng bạn nhỏ</p>
+        <div id="info-txt">Đang chuẩn bị kho dữ liệu 250 loài...</div>
+        <div id="play-btn" class="btn-start" style="display:none;">BẮT ĐẦU CHƠI</div>
+    </div>
+
+    <a-scene cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+        
+        <a-entity camera look-controls position="0 1.6 0">
+            <a-cursor color="#FFCB05"></a-cursor>
+        </a-entity>
+
+        <!-- MÔI TRƯỜNG -->
+        <a-sky color="#87CEEB"></a-sky>
+        <a-plane rotation="-90 0 0" width="100" height="100" color="#2e7d32"></a-plane>
+
+        <!-- BẢNG ĐIỂM -->
+        <a-entity position="0 3.8 -4">
+            <a-box width="2.5" height="0.6" depth="0.1" color="#3b4cca">
+                <a-text id="score-val" value="DIEM: 0" align="center" color="#fff" width="6" position="0 0 0.06"></a-text>
+            </a-box>
+        </a-entity>
+
+        <!-- [BẢNG QUẢN TRÒ] BÊN TRÁI - HIỆN ĐÁP ÁN -->
+        <a-entity position="-3.5 2 -4" rotation="0 35 0">
+            <a-box width="2.2" height="3" depth="0.1" color="#222" material="opacity: 0.9">
+                <a-text value="DAP AN QUAN TRO" align="center" position="0 1.3 0.06" width="3.5" color="#ffcb05"></a-text>
+                <a-image id="manager-img" width="1.8" height="1.8" position="0 0.1 0.06" material="shader: flat; transparent: true"></a-image>
+                <a-text id="manager-name" value="---" align="center" position="0 -1.1 0.06" width="5" color="#fff"></a-text>
+            </a-box>
+        </a-entity>
+
+        <!-- [KHU VỰC CỦA BÉ] Ở GIỮA -->
+        <a-entity position="0 2 -4.5">
+            <a-box id="mystery-box" width="2.5" height="2.5" depth="0.5" color="#ed1c24" 
+                   animation="property: rotation; to: 0 360 0; dur: 8000; loop: true; easing: linear">
+                <a-text value="?" align="center" color="#fff" width="18" position="0 0 0.26"></a-text>
+            </a-box>
+            <a-image id="child-img" width="3.2" height="3.2" position="0 0 0.1" visible="false" 
+                     material="shader: flat; transparent: true; alphaTest: 0.5"></a-image>
+            <a-text id="child-name" value="" align="center" position="0 -2 0" width="10" color="#ffcb05"></a-text>
+        </a-entity>
+
+        <!-- [BẢNG ĐIỀU KHIỂN] DƯỚI THẤP -->
+        <a-entity position="0 0.5 -2.5" rotation="-20 0 0">
+            <a-box width="3.8" height="1.6" depth="0.1" color="#ed1c24"></a-box>
+            <a-box id="btn-next" class="clickable" width="1.2" height="0.5" depth="0.15" color="#ffcb05" position="0 0.45 0.1">
+                <a-text value="CAU TIEP" align="center" color="#3b4cca" width="4" position="0 0 0.08"></a-text>
+            </a-box>
+            <a-box id="btn-speak" class="clickable" width="0.7" height="0.35" depth="0.15" color="#2196f3" position="1.3 0.45 0.1">
+                <a-text value="NGHE" align="center" color="#fff" width="3" position="0 0 0.08"></a-text>
+            </a-box>
+            <a-box id="btn-yes" class="clickable" width="1.3" height="0.65" depth="0.15" color="#4caf50" position="0.9 -0.35 0.1">
+                <a-text value="DUNG" align="center" color="#fff" width="5" position="0 0 0.08"></a-text>
+            </a-box>
+            <a-box id="btn-no" class="clickable" width="1.3" height="0.65" depth="0.15" color="#f44336" position="-0.9 -0.35 0.1">
+                <a-text value="SAI" align="center" color="#fff" width="5" position="0 0 0.08"></a-text>
+            </a-box>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        // Danh sách Tên Pokemon gốc (Gen 1: 151 + Các con nổi tiếng khác)
+        const pokeNames = [
+            "Bulbasaur","Ivysaur","Venusaur","Charmander","Charmeleon","Charizard","Squirtle","Wartortle","Blastoise","Caterpie","Metapod","Butterfree","Weedle","Kakuna","Beedrill","Pidgey","Pidgeotto","Pidgeot","Rattata","Raticate","Spearow","Fearow","Ekans","Arbok","Pikachu","Raichu","Sandshrew","Sandslash","Nidoran-f","Nidorina","Nidoqueen","Nidoran-m","Nidorino","Nidoking","Clefairy","Clefable","Vulpix","Ninetales","Jigglypuff","Wigglytuff","Zubat","Golbat","Oddish","Gloom","Vileplume","Paras","Parasect","Venonat","Venomoth","Diglett","Dugtrio","Meowth","Persian","Psyduck","Golduck","Mankey","Primeape","Growlithe","Arcanine","Poliwag","Poliwhirl","Poliwrath","Abra","Kadabra","Alakazam","Machop","Machoke","Machamp","Bellsprout","Weepinbell","Victreebel","Tentacool","Tentacruel","Geodude","Graveler","Golem","Ponyta","Rapidash","Slowpoke","Slowbro","Magnemite","Magneton","Farfetchd","Doduo","Dodrio","Seel","Dewgong","Grimer","Muk","Shellder","Cloyster","Gastly","Haunter","Gengar","Onix","Drowzee","Hypno","Krabby","Kingler","Voltorb","Electrode","Exeggcute","Exeggutor","Cubone","Marowak","Hitmonlee","Hitmonchan","Lickitung","Koffing","Weezing","Rhyhorn","Rhydon","Chansey","Tangela","Kangaskhan","Horsea","Seadra","Goldeen","Seaking","Staryu","Starmie","Mr-mime","Scyther","Jynx","Electabuzz","Magmar","Pinsir","Tauros","Magikarp","Gyarados","Lapras","Ditto","Eevee","Vaporeon","Jolteon","Flareon","Porygon","Omanyte","Omastar","Kabuto","Kabutops","Aerodactyl","Snorlax","Articuno","Zapdos","Moltres","Dratini","Dragonair","Dragonite","Mewtwo","Mew",
+            "Chikorita","Cyndaquil","Totodile","Togepi","Marill","Sudowoodo","Umbreon","Espeon","Slowking","Wobbuffet","Steelix","Scizor","Heracross","Sneasel","Teddiursa","Swinub","Corsola","Skarmory","Houndoom","Kingdra","Phanpy","Smeargle","Tyrogue","Hitmontop","Miltank","Blissey","Raikou","Entei","Suicune","Larvitar","Tyranitar","Lugia","Ho-oh","Celebi",
+            "Treecko","Torchic","Mudkip","Gardevoir","Slaking","Shedinja","Makuhita","Nosepass","Delcatty","Sableye","Mawile","Aggron","Medicham","Manectric","Sharpedo","Wailord","Torkoal","Flygon","Altaria","Zangoose","Seviper","Lunatone","Solrock","Milotic","Castform","Kecleon","Banette","Duskull","Tropius","Chimecho","Absol","Walrein","Huntail","Gorebyss","Relicanth","Luvdisc","Bagon","Shelgon","Salamence","Beldum","Metang","Metagross","Regirock","Regice","Registeel","Latias","Latios","Kyogre","Groudon","Rayquaza","Jirachi","Deoxys",
+            "Lucario","Greninja","Sylveon","Mimikyu","Scorbunny","Sobble","Grookey","Toxtricity","Dragapult","Zacian","Zamazenta","Eternatus","Sprigatito","Fuecoco","Quaxly","Koraidon","Miraidon"
+        ];
+
+        let masterList = [];
+        let remainingPool = [];
+        let score = 0, current = null, revealed = false, vnVoice = null;
+
+        // Khởi tạo dữ liệu 250 Pokemon
+        function initData() {
+            pokeNames.forEach((name, index) => {
+                if (index < 250) {
+                    masterList.push({
+                        id: index + 1,
+                        n: name,
+                        h: `Bạn nhỏ hãy nghe gợi ý nhé. Đây là bạn Pokémon mang tên ${name}. Đố bạn nhỏ biết bạn ấy trông thế nào?`
+                    });
+                }
+            });
+            // Tùy chỉnh một số gợi ý đặc biệt cho các con phổ biến
+            const specials = {
+                25: "Bạn này màu vàng, đuôi hình tia sét và biết phóng điện xẹt xẹt.",
+                4: "Đây là chú khủng long nhỏ màu cam, đuôi luôn bốc cháy một ngọn lửa nhỏ.",
+                1: "Bạn này màu xanh lá, trên lưng cõng một hạt mầm rất to.",
+                7: "Một bạn rùa xanh dễ thương, có thể phun nước từ miệng rất mạnh.",
+                133: "Chú cáo nhỏ màu nâu, bộ lông cổ trắng xù xinh xắn và rất dễ thương.",
+                143: "Bạn này siêu to béo, màu xanh lam và suốt ngày chỉ nằm ngủ thôi.",
+                39: "Bạn hình tròn màu hồng, mắt to, rất thích hát ru cho mọi người ngủ.",
+                54: "Một chú vịt vàng ngơ ngác, lúc nào cũng lấy tay ôm đầu vì bị đau đầu.",
+                150: "Đây là một Pokémon siêu mạnh mẽ màu trắng tím, có cái đuôi rất dài.",
+                448: "Bạn này giống sói màu xanh, rất giỏi võ thuật và dũng cảm.",
+                658: "Một bạn ếch ninja màu xanh đậm, có chiếc khăn quàng làm từ lưỡi."
+            };
+            masterList.forEach(p => {
+                if (specials[p.id]) p.h = `Bạn nhỏ hãy nghe gợi ý nhé. ${specials[p.id]}`;
+            });
+
+            remainingPool = [...masterList];
+            document.getElementById('play-btn').style.display = 'block';
+            document.getElementById('info-txt').innerText = "Đã sẵn sàng 250 bạn Pokémon!";
+        }
+
+        function findVoice() {
+            const voices = window.speechSynthesis.getVoices();
+            vnVoice = voices.find(v => v.lang.includes('vi')) || voices[0];
+        }
+        window.speechSynthesis.onvoiceschanged = findVoice;
+
+        function noi(txt) {
+            window.speechSynthesis.cancel();
+            const msg = new SpeechSynthesisUtterance(txt);
+            msg.voice = vnVoice;
+            msg.lang = 'vi-VN';
+            msg.rate = 0.95;
+            window.speechSynthesis.speak(msg);
+        }
+
+        function khoiDongApp() {
+            document.getElementById('start-screen').style.display = 'none';
+            moi();
+        }
+
+        function moi() {
+            if (remainingPool.length === 0) {
+                noi("Chúc mừng bạn nhỏ đã đoán hết toàn bộ các bạn Pô kê mon! Chúng mình chơi lại từ đầu nhé.");
+                remainingPool = [...masterList];
+            }
+
+            revealed = false;
+            // Chọn ngẫu nhiên và XÓA khỏi Pool để không lặp lại
+            const randomIndex = Math.floor(Math.random() * remainingPool.length);
+            current = remainingPool.splice(randomIndex, 1)[0];
+            
+            document.getElementById('mystery-box').setAttribute('visible', 'true');
+            document.getElementById('child-img').setAttribute('visible', 'false');
+            document.getElementById('child-name').setAttribute('value', '');
+
+            const spriteUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${current.id}.png`;
+            document.getElementById('manager-img').setAttribute('src', spriteUrl);
+            document.getElementById('manager-name').setAttribute('value', current.n.toUpperCase());
+            document.getElementById('child-img').setAttribute('src', spriteUrl);
+
+            setTimeout(() => noi("Câu đố cho bạn nhỏ: " + current.h), 500);
+        }
+
+        function check(isDung) {
+            if (revealed || !current) return;
+            revealed = true;
+
+            document.getElementById('mystery-box').setAttribute('visible', 'false');
+            document.getElementById('child-img').setAttribute('visible', 'true');
+            document.getElementById('child-name').setAttribute('value', current.n.toUpperCase());
+
+            if (isDung) {
+                score++;
+                document.getElementById('score-val').setAttribute('value', 'DIEM: ' + score);
+                noi(`Chính xác! Bạn nhỏ giỏi quá. Đây chính là bạn ${current.n}.`);
+            } else {
+                noi(`Ồ, chưa đúng rồi. Đây là bạn ${current.n} cơ.`);
+            }
+        }
+
+        document.getElementById('btn-next').onclick = moi;
+        document.getElementById('btn-speak').onclick = () => noi(current.h);
+        document.getElementById('btn-yes').onclick = () => check(true);
+        document.getElementById('btn-no').onclick = () => check(false);
+
+        initData();
+        findVoice();
+    </script>
+</body>
+</html>

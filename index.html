@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex Scanner VR - Face Detection Game</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    
+    <!-- A-Frame for VR/AR -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    
+    <!-- TensorFlow.js for face detection -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.min.js"></script>
+    
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="./src/styles/base.css">
+    <link rel="stylesheet" href="./src/styles/aframe.css">
+    <link rel="stylesheet" href="./src/styles/modals.css">
+    <link rel="stylesheet" href="./src/styles/components.css">
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="start-node">
+        <h1 data-i18n="title">POKÉDEX SCANNER</h1>
+        <p class="subtitle" data-i18n="subtitle">Face Detection Pokemon Game - 1025 Pokemon</p>
+        <div id="load-msg" data-i18n="loading">Loading game data...</div>
+        
+        <!-- Age Selector -->
+        <div id="age-selector" style="display:none;">
+            <h3 data-i18n="choose_age">Choose Age:</h3>
+            <div class="age-btn-container">
+                <button class="age-btn" data-age="4-6" data-i18n="age_4_6">
+                    🐣 Ages 4-6
+                </button>
+                <button class="age-btn" data-age="7-10" data-i18n="age_7_10">
+                    ⚡ Ages 7-10
+                </button>
+                <button class="age-btn" data-age="mixed" data-i18n="age_mixed">
+                    🌈 All Pokemon
+                </button>
+            </div>
+        </div>
+        
+        <!-- Username Input -->
+        <div id="username-input" style="display:none;">
+            <h3>👤 Enter Your Trainer Name</h3>
+            <input type="text" id="trainer-name-input" placeholder="Enter your name..." maxlength="20">
+            <p class="input-hint">Max 20 characters</p>
+        </div>
+        
+        <button id="start-btn" class="btn" style="display:none;" data-i18n="start_btn">START GAME</button>
+        <button id="collection-btn" class="btn secondary-btn" style="display:none;" data-i18n="view_collection">📖 VIEW COLLECTION</button>
+        <button id="battle-btn" class="btn secondary-btn" style="display:none;">⚔️ BATTLE ARENA</button>
+        <button id="leaderboard-btn" class="btn secondary-btn" style="display:none;">🏆 LEADERBOARD</button>
+    </div>
+    
+    <!-- Main Game UI -->
+    <div id="game-ui" style="display: none;">
+        <!-- Top Bar -->
+        <div id="top-bar">
+            <div id="trainer-info">
+                <span id="trainer-name">Trainer</span>
+                <span id="trainer-level">Lv.1</span>
+            </div>
+            <div id="coins-display">
+                <span>💰</span>
+                <span id="coins-amount">0</span>
+            </div>
+        </div>
+        
+        <!-- Menu Buttons -->
+        <div id="menu-buttons">
+            <button class="menu-btn" data-modal="collection">📖 Collection</button>
+            <button class="menu-btn" data-modal="pokedex">📚 Pokédex</button>
+            <button class="menu-btn" data-modal="quests">🎯 Quests</button>
+            <button class="menu-btn" data-modal="inventory">🎒 Inventory</button>
+            <button class="menu-btn" data-modal="trainer">👤 Profile</button>
+            <button class="menu-btn" data-modal="shop">🏪 Shop</button>
+            <button class="menu-btn" data-modal="battle">⚔️ Battle</button>
+            <button class="menu-btn" data-modal="trading">🔄 Trading</button>
+            <button class="menu-btn" data-modal="team">👥 Team</button>
+            <button class="menu-btn" data-modal="breeding">🥚 Breeding</button>
+            <button class="menu-btn" data-modal="leaderboard">🏆 Leaderboard</button>
+            <button class="menu-btn" data-modal="settings">⚙️ Settings</button>
+        </div>
+        
+        <!-- AR Filter Buttons -->
+        <div id="ar-filter-buttons">
+            <button class="filter-btn" data-filter="none">🔳 None</button>
+            <button class="filter-btn" data-filter="sepia">🟤 Sepia</button>
+            <button class="filter-btn" data-filter="grayscale">⬜ B&W</button>
+            <button class="filter-btn" data-filter="invert">🔄 Invert</button>
+            <button class="filter-btn" data-filter="blur">🌫️ Blur</button>
+            <button class="filter-btn" data-filter="vintage">📷 Vintage</button>
+        </div>
+        
+        <!-- Photo Capture Button -->
+        <button id="photo-btn">📸 Capture</button>
+        
+        <!-- Detection Status -->
+        <div id="detection-status">
+            <span id="face-count">0</span> faces detected
+        </div>
+        
+        <!-- Mini-Game Access -->
+        <div id="minigame-buttons" style="display: none;">
+            <button class="minigame-btn" data-game="memory">🧠 Memory</button>
+            <button class="minigame-btn" data-game="quiz">❓ Quiz</button>
+            <button class="minigame-btn" data-game="catch">🎯 Catch</button>
+        </div>
+    </div>
+    
+    <!-- A-Frame Scene -->
+    <a-scene embedded vr-mode-ui="enabled: false" loading-screen="enabled: false" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+        <!-- Camera -->
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+        
+        <!-- Video Mirror -->
+        <a-entity id="mirror" 
+                  geometry="primitive: plane; width: 16; height: 9"
+                  material="shader: flat; src: #video-canvas; side: double"
+                  position="0 0 -10"
+                  rotation="0 0 0">
+        </a-entity>
+        
+        <!-- Result Board for Pokemon Display -->
+        <a-entity id="result-board" position="0 0 -5" visible="false">
+            <a-plane width="4" height="3" color="#2c3e90" opacity="0.9" position="0 0 0"></a-plane>
+            <a-text id="pokemon-name" value="" align="center" color="#ffcb05" 
+                    width="6" position="0 1 0.01"></a-text>
+            <a-text id="pokemon-id" value="" align="center" color="white" 
+                    width="4" position="0 0.5 0.01"></a-text>
+            <a-image id="pokemon-sprite" src="" width="2" height="2" position="0 -0.5 0.01"></a-image>
+        </a-entity>
+    </a-scene>
+    
+    <!-- Canvas for Video Processing -->
+    <canvas id="video-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover;"></canvas>
+    
+    <!-- Load Main Application -->
+    <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

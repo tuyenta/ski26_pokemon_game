@@ -1,0 +1,293 @@
+/**
+ * A-Frame Scene Styles
+ * Styles specific to A-Frame VR/AR components
+ */
+
+/* A-Frame Canvas */
+a-scene {
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+}
+
+a-scene canvas {
+    cursor: none;
+    background: transparent !important;
+    pointer-events: auto;
+}
+
+/* Hide A-Frame UI */
+.a-enter-vr {
+    display: none !important;
+}
+
+.a-orientation-modal {
+    display: none !important;
+}
+
+/* Loading Screen */
+.a-loader-title {
+    color: #FFCB05 !important;
+    font-family: 'Orbitron', sans-serif !important;
+}
+
+/* Video Canvas - visible for face detection */
+#video-canvas {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    object-fit: cover;
+    background: #000;
+}
+
+/* VR Mode Adjustments */
+@media (min-width: 1024px) {
+    a-scene {
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+}
+
+/* Mobile VR Optimizations */
+@media (max-width: 768px) {
+    a-scene {
+        touch-action: none;
+    }
+}
+
+/* Clickable Cursor Feedback */
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    opacity: 0.8;
+}
+
+/* Custom Cursor Styles */
+a-cursor {
+    animation: pulse 1s infinite;
+}
+
+/* AR Overlay Adjustments */
+.ar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.ar-overlay > * {
+    pointer-events: all;
+}
+
+/* Face Detection Overlays */
+.face-indicator {
+    position: absolute;
+    border: 3px solid #4CAF50;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+    pointer-events: none;
+    animation: pulse 1s infinite;
+}
+
+/* Pokemon Spawn Indicators */
+.spawn-indicator {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,203,5,0.8), transparent);
+    animation: expand 1s ease-out;
+    pointer-events: none;
+}
+
+@keyframes expand {
+    from {
+        transform: scale(0);
+        opacity: 1;
+    }
+    to {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+/* Scan Line Effect */
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #00FF00, transparent);
+    animation: scan 2s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes scan {
+    from {
+        top: 0;
+    }
+    to {
+        top: 100%;
+    }
+}
+
+/* AR Filter Effects */
+.filter-sepia {
+    filter: sepia(100%);
+}
+
+.filter-grayscale {
+    filter: grayscale(100%);
+}
+
+.filter-invert {
+    filter: invert(100%);
+}
+
+.filter-blur {
+    filter: blur(3px);
+}
+
+.filter-vintage {
+    filter: sepia(50%) contrast(1.2) brightness(0.9);
+}
+
+/* 3D Text Glow Effects */
+a-text {
+    text-shadow: 0 0 10px rgba(255,203,5,0.8);
+}
+
+/* Entity Hover States */
+.entity-hover {
+    animation: bounce 0.5s ease;
+}
+
+/* Loading Indicator for Models */
+.model-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #FFCB05;
+    animation: spin 1s linear infinite;
+}
+
+/* Pokemon Card Display in VR */
+.vr-pokemon-card {
+    background: rgba(44, 62, 144, 0.95);
+    border: 3px solid #FFCB05;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* Type Badges in VR */
+.vr-type-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Stats Display in VR */
+.vr-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vr-stat-bar {
+    height: 15px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.vr-stat-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+}
+
+/* Achievement Notification in VR */
+.vr-achievement {
+    background: rgba(255,203,5,0.95);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Pokeball Button in VR */
+.vr-pokeball {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.vr-pokeball-top {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 50%;
+    background: #EE1515;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
+}
+
+.vr-pokeball-bottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 50%;
+    background: #FFFFFF;
+    border-bottom-left-radius: 50px;
+    border-bottom-right-radius: 50px;
+}
+
+.vr-pokeball-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    background: #FFFFFF;
+    border: 5px solid #000000;
+    border-radius: 50%;
+}
+
+/* Responsive VR Adjustments */
+@media (max-width: 768px) {
+    .vr-pokemon-card {
+        padding: 15px;
+    }
+    
+    .vr-pokeball {
+        width: 80px;
+        height: 80px;
+    }
+}

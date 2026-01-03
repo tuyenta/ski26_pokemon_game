@@ -5,36 +5,65 @@ This is a modularized refactor of the Pokemon AR face-scanning game, splitting t
 ## Project Structure
 
 ```
-pokemon/
+ski26_pokemon_game/
 ├── src/
-│   ├── core/              # Core systems
-│   │   ├── EventBus.ts    # Pub/sub event system
-│   │   ├── events.ts      # Event types and payloads
-│   │   └── StorageAdapter.ts  # localStorage abstraction
-│   ├── systems/           # Game systems (25+ classes)
-│   │   ├── CollectionManager.ts  ✅ Complete
-│   │   ├── TrainerProfile.ts     🚧 TODO
-│   │   ├── InventoryManager.ts   🚧 TODO
-│   │   ├── BattleSystem.ts       🚧 TODO
-│   │   └── ... (22+ more)
-│   ├── components/        # UI components
-│   │   └── modals/       # Lazy-loaded modals
-│   ├── utils/            # Utility functions
-│   │   ├── coordinates.ts  # A-Frame coordinate transforms
-│   │   ├── pokeapi.ts     # Pokemon API utilities
-│   │   └── helpers.ts     # General helpers
-│   ├── config/           # Configuration files
-│   │   ├── ageGroups.ts   # Age-specific configs
-│   │   ├── rarities.ts    # Rarity system & functions
-│   │   └── i18n.ts        # Translations
-│   ├── styles/           # CSS modules
-│   └── main.ts           # Entry point orchestrator
-├── public/               # Static assets
-├── index.html            # Minimal HTML entry
-├── package.json          # Dependencies
-├── vite.config.js        # Vite configuration
-├── tsconfig.json         # TypeScript configuration
-└── pokemom_ai_game.html  # Original monolithic file
+│   ├── core/                    # Core systems
+│   │   ├── EventBus.ts          # Pub/sub event system
+│   │   ├── events.ts            # Event types and payloads
+│   │   └── StorageAdapter.ts    # localStorage abstraction
+│   ├── systems/                 # Game systems (19 classes) ✅
+│   │   ├── ARFilterSystem.ts    # AR filter effects
+│   │   ├── BattleSystem.ts      # Battle mechanics
+│   │   ├── BreedingSystem.ts    # Pokemon breeding
+│   │   ├── BuddySystem.ts       # Buddy Pokemon features
+│   │   ├── CollectionManager.ts # Pokemon collection
+│   │   ├── CustomizationSystem.ts # Player customization
+│   │   ├── EventsSystem.ts      # In-game events
+│   │   ├── FusionSystem.ts      # Pokemon fusion
+│   │   ├── GymBadgeSystem.ts    # Gym badges & progression
+│   │   ├── InventoryManager.ts  # Items & coins
+│   │   ├── MiniGameManager.ts   # Mini-games
+│   │   ├── PhotoCapture.ts      # AR photo capture
+│   │   ├── QuestManager.ts      # Quest system
+│   │   ├── ShopSystem.ts        # In-game shop
+│   │   ├── SoundManager.ts      # Audio management
+│   │   ├── TeamManager.ts       # Team management
+│   │   ├── TradingSystem.ts     # Pokemon trading
+│   │   ├── TrainerProfile.ts    # XP, levels, titles
+│   │   └── WeatherTimeSystem.ts # Weather & time effects
+│   ├── components/              # UI components
+│   │   ├── BaseModal.ts         # Base modal class
+│   │   ├── ModalRegistry.ts     # Modal lazy-loading registry
+│   │   └── modals/              # Modal implementations
+│   │       ├── CollectionModal.ts
+│   │       ├── InventoryModal.ts
+│   │       ├── QuestsModal.ts
+│   │       ├── ShopModal.ts
+│   │       ├── StubModals.ts    # Placeholder modals
+│   │       └── TrainerModal.ts
+│   ├── utils/                   # Utility functions
+│   │   ├── coordinates.ts       # A-Frame coordinate transforms
+│   │   ├── pokeapi.ts           # Pokemon API utilities
+│   │   └── helpers.ts           # General helpers
+│   ├── config/                  # Configuration files
+│   │   ├── ageGroups.ts         # Age-specific configs
+│   │   ├── rarities.ts          # Rarity system & functions
+│   │   └── i18n.ts              # Translations
+│   ├── styles/                  # CSS modules ✅
+│   │   ├── aframe.css           # A-Frame specific styles
+│   │   ├── base.css             # Base/reset styles
+│   │   ├── components.css       # Component styles
+│   │   └── modals.css           # Modal styles
+│   └── main.ts                  # Entry point orchestrator ✅
+├── index.html                   # HTML entry point
+├── package.json                 # Dependencies
+├── vite.config.js               # Vite configuration
+├── tsconfig.json                # TypeScript configuration
+├── ai_studio_code.js            # AI Studio integration
+├── ai_studio_code.css           # AI Studio styles
+├── pokemon-sw.js                # Service worker for PWA
+├── pokemom_ai_game.html         # Original monolithic file
+└── pokemom_ai_game_1.html       # Backup of original
 ```
 
 ## Key Features
@@ -43,8 +72,9 @@ pokemon/
 
 1. **Project Infrastructure**
    - Vite build system with code-splitting
-   - TypeScript configuration
-   - Directory structure
+   - TypeScript configuration (v5.3+)
+   - Complete directory structure
+   - Service worker for PWA support
 
 2. **Core Systems**
    - EventBus for decoupled pub/sub communication
@@ -61,31 +91,58 @@ pokemon/
    - PokeAPI integration
    - Helper functions
 
-5. **First System Module**
-   - CollectionManager fully extracted and event-driven
+5. **Game Systems (19 modules)**
+   - CollectionManager - Pokemon collection & Pokedex
+   - TrainerProfile - XP, levels, titles
+   - InventoryManager - Items, coins, resources
+   - QuestManager - Quest tracking & rewards
+   - BattleSystem - Battle mechanics
+   - BuddySystem - Buddy Pokemon features
+   - BreedingSystem - Pokemon breeding
+   - TradingSystem - Pokemon trading
+   - TeamManager - Team management
+   - GymBadgeSystem - Gym badges & progression
+   - ShopSystem - In-game shop
+   - SoundManager - Audio management
+   - PhotoCapture - AR photo capture
+   - WeatherTimeSystem - Weather & time effects
+   - FusionSystem - Pokemon fusion
+   - ARFilterSystem - AR filter effects
+   - CustomizationSystem - Player customization
+   - EventsSystem - In-game events
+   - MiniGameManager - Mini-games
 
-### 🚧 Next Steps
+6. **UI Modals**
+   - BaseModal class for consistent modal behavior
+   - ModalRegistry for lazy-loading
+   - CollectionModal, InventoryModal, QuestsModal
+   - ShopModal, TrainerModal
+   - StubModals for remaining placeholders
 
-1. **Extract Remaining System Classes** (Priority: High)
-   - TrainerProfile (XP, levels, titles)
-   - InventoryManager (items, coins)
-   - QuestManager
-   - BattleSystem
-   - PVPBattleSystem
-   - 20+ more systems...
+7. **CSS Extraction**
+   - Base styles (reset, typography)
+   - Component styles
+   - Modal styles
+   - A-Frame specific styles
 
-2. **Extract UI Modals** (Priority: Medium)
-   - Create ModalRegistry for lazy loading
-   - Convert 20+ modal functions to components
+8. **Main Entry Point**
+   - main.ts orchestrator implemented
+   - index.html with A-Frame scene
 
-3. **Create Main Entry Point** (Priority: High)
-   - Build index.html with A-Frame scene
-   - Create main.ts orchestrator
-   - Wire up all systems via EventBus
+### 🚧 Remaining Work
 
-4. **Extract CSS** (Priority: Low)
-   - Split inline styles into modules
-   - Organize by component
+1. **Complete Modal Implementations** (Priority: Medium)
+   - Replace stub modals with full implementations
+   - Add remaining modal types (Battle, Trading, etc.)
+
+2. **Face Detection Integration** (Priority: High)
+   - Integrate face-api.js or equivalent
+   - Connect to A-Frame scene
+
+3. **Testing & Validation** (Priority: High)
+   - Unit tests for system modules
+   - Integration testing
+   - Browser compatibility testing
 
 ## Architecture Principles
 
@@ -172,22 +229,27 @@ npm run preview
 
 ## Migration Status
 
-### Extracted ✅
-- Project structure
+### Completed ✅
+- Project structure & infrastructure
 - Event bus system
 - Storage adapter
-- Configuration files
+- Configuration files (age groups, rarities, i18n)
 - Utility functions
-- CollectionManager system
-
-### TODO 🚧
-- 24 remaining system classes
-- 20+ modal components
+- **19 game system classes** - All core systems extracted
+- Modal framework (BaseModal, ModalRegistry)
+- 5 modal implementations + stub modals
+- CSS extraction (4 stylesheet modules)
 - Main entry point (index.html + main.ts)
-- CSS extraction
-- Face detection integration
-- A-Frame scene setup
+
+### In Progress 🚧
+- Replacing stub modals with full implementations
+- Integrating face detection
+
+### TODO 📋
+- Face detection implementation
 - Testing and validation
+- Performance optimization
+- PWA enhancements
 
 ## Event Types
 
@@ -224,5 +286,5 @@ When extracting new systems:
 
 ---
 
-**Status**: 🚧 In Progress (20% complete)
-**Next Priority**: Extract core game systems (TrainerProfile, InventoryManager, etc.)
+**Status**: � In Progress (~80% complete)
+**Next Priority**: Integrate face detection, replace stub modals, add tests

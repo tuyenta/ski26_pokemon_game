@@ -112,7 +112,7 @@
     </div>
     
     <!-- A-Frame Scene -->
-    <a-scene embedded vr-mode-ui="enabled: false" loading-screen="enabled: false" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;">
+    <a-scene embedded vr-mode-ui="enabled: false" loading-screen="enabled: false" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;">
         <!-- Camera -->
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
         
@@ -136,7 +136,7 @@
     </a-scene>
     
     <!-- Canvas for Video Processing -->
-    <canvas id="video-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; object-fit: cover;"></canvas>
+    <canvas id="video-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; object-fit: cover;"></canvas>
     
     <!-- Load Main Application -->
     <script type="module" src="/src/main.ts"></script>
